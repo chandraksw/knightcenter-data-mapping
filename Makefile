@@ -4,7 +4,7 @@ greeting:
 math:
 	expr 2 + 2
 
-all: directories downloads freshdata
+all: directories downloads freshdata filecheck
 
 directories:
 	-mkdir tmp
@@ -44,3 +44,10 @@ droughtmap:
 	-proj albersusa +PR \
 	-o format=svg ./data/droughtmap.svg
 	
+	filecheck:
+		curl "https://chandrawall-projects-public.s3.amazonaws.com/inflation-map/inflation.csv" -o tmp/previous.csv
+
+		cmp --silent ./tmp/previous.csv ./data/inflation.csv || \
+		curl -X POST -H 'Content-type: application/json' \
+		--insecure \
+		--data '{"text":"The file you asked me to watch has changed!"}' $$SLACK_WEBHOOK
